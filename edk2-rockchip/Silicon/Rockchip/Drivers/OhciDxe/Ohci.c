@@ -2217,10 +2217,10 @@ OHCIDriverBindingStart (
 {
   USB_OHCI_HC_DEV       *Ohc;
   EFI_STATUS            Status;
-  VOID                  *Buf;
+  VOID                  *Buf = NULL;
   EFI_PHYSICAL_ADDRESS  PhyAddr;
   VOID                  *Map;
-  UINTN                 Pages;
+  UINTN                 Pages = 0;
   UINTN                 Bytes;
 
   Ohc = AllocateZeroPool (sizeof (USB_OHCI_HC_DEV));

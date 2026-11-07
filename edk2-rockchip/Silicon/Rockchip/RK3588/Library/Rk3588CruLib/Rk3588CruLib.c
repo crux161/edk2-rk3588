@@ -291,13 +291,13 @@ static CRU_RESET  Resets[RESET_COUNT] = {
 
 /********************* Private Variable Definition ***************************/
 
-static uint32_t  s_lpllFreq;
+static uint32_t  s_lpllFreq __attribute__ ((unused));
 static uint32_t  s_cpllFreq = 1500 * 1000 * 1000;
 static uint32_t  s_gpllFreq = 1188 * 1000 * 1000;
-static uint32_t  s_npllFreq;
+static uint32_t  s_npllFreq __attribute__ ((unused));
 static uint32_t  s_v0pllFreq;
 static uint32_t  s_ppllFreq;
-static uint32_t  s_aupllFreq;
+static uint32_t  s_aupllFreq __attribute__ ((unused));
 
 /********************* Private Function Definition ***************************/
 

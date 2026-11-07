@@ -1,0 +1,15 @@
+diff --git a/plat/rockchip/common/pmusram/cpus_on_fixed_addr.S b/plat/rockchip/common/pmusram/cpus_on_fixed_addr.S
+index 6cea2eaab..345f9882e 100644
+--- a/plat/rockchip/common/pmusram/cpus_on_fixed_addr.S
++++ b/plat/rockchip/common/pmusram/cpus_on_fixed_addr.S
+@@ -9,6 +9,10 @@
+ #include <platform_def.h>
+ #include <cpus_on_fixed_addr.h>
+ 
++	/* Emit unwind info as .debug_frame; .eh_frame entries for the
++	 * far-addressed PMUSRAM sections overflow R_AARCH64_PREL32. */
++	.cfi_sections .debug_frame
++
+ 	.globl sys_sleep_flag_sram
+ 	.globl pmu_cpuson_entrypoint
+ 

@@ -315,7 +315,7 @@ CRU_PllV1SetByAuto (
     return NULL;
   }
 
-  if ((fout_hz > RK3588_FOUT_MAX_HZ) || (fout_hz < RK3588_FOUT_MIN_HZ)) {
+  if (((UINT64)fout_hz > RK3588_FOUT_MAX_HZ) || (fout_hz < RK3588_FOUT_MIN_HZ)) {
     return NULL;
   }
 
@@ -623,7 +623,7 @@ HAL_CRU_SetPllV1Freq (
     return HAL_OK;
   } else if (rate < RK3588_FOUT_MIN_HZ) {
     return HAL_INVAL;
-  } else if (rate > RK3588_FOUT_MAX_HZ) {
+  } else if ((UINT64)rate > RK3588_FOUT_MAX_HZ) {
     return HAL_INVAL;
   }
 

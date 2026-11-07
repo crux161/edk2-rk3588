@@ -495,7 +495,7 @@ buck_set_voltage (
   INT32                        cs_id = (reg_id & 0xf00) >> 8;
   INT32                        val;
 
-  if (info->vsel_reg == NA) {
+  if (info->vsel_reg == (UINT8)NA) {
     return RETURN_INVALID_PARAMETER;
   }
 
@@ -532,7 +532,7 @@ nldo_set_voltage (
   INT32                        cs_id = (reg_id & 0xf00) >> 8;
   INT32                        val;
 
-  if (info->vsel_reg == NA) {
+  if (info->vsel_reg == (UINT8)NA) {
     return RETURN_INVALID_PARAMETER;
   }
 
@@ -568,7 +568,7 @@ pldo_set_voltage (
   INT32                        cs_id = (reg_id & 0xf00) >> 8;
   INT32                        val;
 
-  if (info->vsel_reg == NA) {
+  if (info->vsel_reg == (UINT8)NA) {
     return RETURN_INVALID_PARAMETER;
   }
 
@@ -696,6 +696,8 @@ pldo_set_enable (
     }
 
     ret =  pmic_reg_write (cs_id, en_reg, &value, 1);
+  } else {
+    ret = RETURN_INVALID_PARAMETER;
   }
 
   return ret;

@@ -271,7 +271,7 @@ index 000000000..023884d6d
 +	uint32_t num = (reg_id & REGULATOR_ID_MASK) >> REGULATOR_ID_SHIFT;
 +	uint32_t value;
 +
-+	if (info->vsel_reg == NA)
++	if (info->vsel_reg == (uint8_t)NA)
 +		return -EINVAL;
 +
 +	if (info->step_uv == 0)	/* Fixed voltage */

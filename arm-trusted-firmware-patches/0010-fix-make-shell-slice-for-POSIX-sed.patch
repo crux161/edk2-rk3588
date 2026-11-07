@@ -1,0 +1,13 @@
+diff --git a/make_helpers/utilities.mk b/make_helpers/utilities.mk
+index ac59007b4..1c07a8c24 100644
+--- a/make_helpers/utilities.mk
++++ b/make_helpers/utilities.mk
+@@ -518,7 +518,7 @@ define shell-slice.sh =
+         m=$(if $(3),$(call shell-quote,$(3)),$$(($$# + 1)));
+ 
+         printf '%s\n' "$$@" $\
+-                | sed -n "$${n},$${m}{ $${m}!p }; $${m}q" $\
++                | awk -v n=$${n} -v m=$${m} 'NR >= n && NR < m' \
+                 | sed "s/'/'\\\\''/g; s/^/'/; s/\$$/'/";
+ endef
+ 
