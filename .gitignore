@@ -9,4 +9,6 @@ ramdisk
 *.swp
 *.rej
 *.orig
+**/.DS_Store
+.DS_Store
 *_FLASH.img
