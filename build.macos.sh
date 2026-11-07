@@ -178,7 +178,63 @@ EOF
         -e "/@ATF_IMAGES@/d" \
         ${ROOTDIR}/misc/uefi_${SOC_L}.its > ${SOC_L}_${DEVICE}_EFI.its
     rm -f "${ATF_NODES}"
+
+    #
+    # Recent mkimage (U-Boot 2026.x, as shipped by Homebrew) segfaults on an
+    # image node with both a payload and data-position, and rejects nodes with
+    # external-data properties but no payload. Give the NV placeholder a
+    # zero-filled payload and drop its data-position before running mkimage,
+    # then restore data-position in the compiled FIT: the loader checks it
+    # before data-offset and reads the NV region straight from its flash
+    # location (0x7C0000, i.e. FIT offset 0x6C0000).
+    #
+    dd if=/dev/zero of=nvdata.bin bs=65536 count=3 2>/dev/null
+    "${PYTHON_BIN}" - "${SOC_L}_${DEVICE}_EFI.its" <<'PYEOF'
+import re
+import sys
+
+p = sys.argv[1]
+s = open(p).read()
+old = 'description = "UEFI Non-Volatile Data";'
+if old not in s:
+    sys.exit("nvdata node not found in " + p)
+s = s.replace(old, old + '\n\t\t\tdata = /incbin/("./nvdata.bin");', 1)
+s, count = re.subn(r'\n[ \t]*data-position = <0x006C0000>;[^\n]*', '', s, count=1)
+if count != 1:
+    sys.exit("nvdata data-position not found in " + p)
+open(p, "w").write(s)
+PYEOF
+
     "${MKIMAGE}" -f ${SOC_L}_${DEVICE}_EFI.its -E ${DEVICE}_EFI.itb
+
+    "${PYTHON_BIN}" - ${DEVICE}_EFI.itb "${FDTPUT}" <<'PYEOF'
+import struct
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+itb = Path(sys.argv[1])
+fdtput = sys.argv[2]
+
+blob = itb.read_bytes()
+total = struct.unpack('>I', blob[4:8])[0]
+aligned = (total + 3) & ~3
+head, external = blob[:aligned], blob[aligned:]
+
+with tempfile.NamedTemporaryFile(suffix='.dtb') as tmp:
+    Path(tmp.name).write_bytes(head)
+    subprocess.run([fdtput, '-d', tmp.name, '/images/nvdata', 'data-offset'], check=True)
+    subprocess.run([fdtput, '-t', 'x', tmp.name, '/images/nvdata', 'data-position', '6c0000'], check=True)
+    dtb = Path(tmp.name).read_bytes()
+
+pad = (-len(dtb)) % 4
+if pad:
+    aligned_dtb = bytearray(dtb + bytes(pad))
+    struct.pack_into('>I', aligned_dtb, 4, len(aligned_dtb))
+    dtb = bytes(aligned_dtb)
+itb.write_bytes(dtb + external)
+PYEOF
 
     popd
     echo " => FIT build done"
@@ -425,6 +481,11 @@ fi
 MKIMAGE="${ROOTDIR}/misc/tools/${MACHINE_TYPE}/mkimage"
 if [ "$(uname -s)" = "Darwin" ] && command -v mkimage >/dev/null 2>&1; then
     MKIMAGE="$(command -v mkimage)"
+fi
+
+FDTPUT="$(command -v fdtput || true)"
+if [ "$(uname -s)" = "Darwin" ] && [ -z "${FDTPUT}" ]; then
+    _error "fdtput is required for FIT packaging. Run 'brew install dtc'."
 fi
 
 # Exit on first error

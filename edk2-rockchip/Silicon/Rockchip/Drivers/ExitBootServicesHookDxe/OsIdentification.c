@@ -16,7 +16,7 @@ STATIC CHAR8  *mOsTypeStrings[] = {
   [ExitBootServicesOsWindows] = "Windows",
   [ExitBootServicesOsLinux]   = "Linux",
 };
-STATIC_ASSERT (ARRAY_SIZE (mOsTypeStrings) == ExitBootServicesOsMax);
+STATIC_ASSERT (ARRAY_SIZE (mOsTypeStrings) == ExitBootServicesOsMax, "OsType string table size mismatch");
 
 #define LINUX_ARM64_MAGIC  0x644d5241
 #define LINUX_PE_MAGIC     0x818223cd
