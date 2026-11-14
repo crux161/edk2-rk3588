@@ -1,0 +1,54 @@
+## @file
+#  The Kumo Continuum splash (PROPOSAL/024 KS2).
+#
+#  Shows the still Kumo mark and a milestone progress bar from the platform's AfterConsole event, publishes NIMBUS_SPLASH_STATE,
+#  and gives the glass back the instant anything else uses it. The pixels come from
+#  libkumo_splash_ffi.a, built from the KUMO tree by scripts/kumo-splash-lib.sh.
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = NimbusSplashDxe
+  FILE_GUID                      = 7C1D5E0A-6B2F-4E9B-9A47-3D0C2F1B8E61
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 0.1
+  ENTRY_POINT                    = NimbusSplashDxeEntry
+
+[Sources]
+  NimbusSplashDxe.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  NimbusPkg/NimbusPkg.dec
+
+[LibraryClasses]
+  ArmGenericTimerCounterLib
+  BaseMemoryLib
+  DebugLib
+  MemoryAllocationLib
+  PcdLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  UefiLib
+
+[Protocols]
+  gEfiGraphicsOutputProtocolGuid                ## CONSUMES
+
+[Guids]
+  gNimbusSplashStateGuid                        ## PRODUCES ## SystemTable
+  gEfiEventExitBootServicesGuid                 ## CONSUMES ## Event
+
+[Pcd]
+  gNimbusPkgTokenSpaceGuid.PcdNimbusSplashFrameMs
+
+[Depex]
+  TRUE
+
+[BuildOptions]
+  # The renderer: same code as Nijigumo's and drv-fb's. Placed after the module's objects by
+  # EDK2's DLINK rule, so the archive resolves the four kumo_splash_* references.
+  GCC:*_*_AARCH64_DLINK2_FLAGS = $(MODULE_DIR)/Lib/libkumo_splash_ffi.a

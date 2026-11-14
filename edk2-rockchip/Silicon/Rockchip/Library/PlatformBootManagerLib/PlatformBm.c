@@ -991,6 +991,27 @@ HandleCapsules (
 
 #define VERSION_STRING_PREFIX  L"Tianocore/EDK2 firmware version "
 
+//
+// NIMBUS (PROPOSAL/024 KS2): while NimbusSplashDxe owns the glass, the boot manager draws nothing
+// over it: no logo, no version string, no prompt, no progress bar. The splash stops by itself the
+// moment anything else prints or draws, so setup, errors and the hotkeys all still work. The
+// driver publishes NIMBUS_SPLASH_STATE; its presence is the signal.
+//
+STATIC EFI_GUID  mNimbusSplashStateGuid = {
+  0x4F6D983C, 0xC4BB, 0x4218, { 0x9D, 0x31, 0xBA, 0x44, 0x7B, 0x4B, 0xC8, 0x1F }
+};
+
+STATIC
+BOOLEAN
+NimbusSplashOwnsGlass (
+  VOID
+  )
+{
+  VOID  *Table;
+
+  return !EFI_ERROR (EfiGetSystemConfigurationTable (&mNimbusSplashStateGuid, &Table));
+}
+
 /**
   This functions checks the value of BootDiscoverPolicy variable and
   connect devices of class specified by that variable. Then it refreshes
@@ -1130,10 +1151,12 @@ PlatformBootManagerAfterConsole (
   FirmwareVerLength = StrLen (PcdGetPtr (PcdFirmwareVersionString));
 
   //
-  // Show the splash screen.
+  // Show the splash screen, unless the Kumo Continuum splash already owns the glass.
   //
-  Status = BootLogoEnableLogo ();
-  if (EFI_ERROR (Status)) {
+  Status = NimbusSplashOwnsGlass () ? EFI_ALREADY_STARTED : BootLogoEnableLogo ();
+  if (Status == EFI_ALREADY_STARTED) {
+    DEBUG ((DEBUG_INFO, "PlatformBm: NIMBUS splash owns the glass; logo, version and prompt suppressed\n"));
+  } else if (EFI_ERROR (Status)) {
     if (FirmwareVerLength > 0) {
       Print (
         VERSION_STRING_PREFIX L"%s\n",
@@ -1197,6 +1220,10 @@ PlatformBootManagerWaitCallback (
   EFI_GRAPHICS_OUTPUT_BLT_PIXEL_UNION  White;
   UINT16                               Timeout;
   EFI_STATUS                           Status;
+
+  if (NimbusSplashOwnsGlass ()) {
+    return;
+  }
 
   Timeout = PcdGet16 (PcdPlatformBootTimeOut);
 

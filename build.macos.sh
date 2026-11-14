@@ -361,6 +361,12 @@ function _build(){
     "${MAKE_BIN}" -C "${ROOTDIR}/edk2/BaseTools"
     source "${ROOTDIR}/edk2/edksetup.sh" --reconfig
 
+    # PROPOSAL/024: NimbusSplashDxe links the KUMO splash renderer, built from the KUMO tree
+    # (KUMO_ROOT, default ~/git/kumo). NIMBUS_SPLASH=FALSE builds the stock logo instead.
+    if [ "${NIMBUS_SPLASH:-TRUE}" = "TRUE" ]; then
+        "${ROOTDIR}/scripts/kumo-splash-lib.sh"
+    fi
+
     build \
         -s \
         -n 0 \
@@ -372,6 +378,7 @@ function _build(){
         -D NETWORK_ALLOW_HTTP_CONNECTIONS=TRUE \
         -D NETWORK_ISCSI_ENABLE=TRUE \
         -D INCLUDE_TFTP_COMMAND=TRUE \
+        -D NIMBUS_SPLASH_ENABLE="${NIMBUS_SPLASH:-TRUE}" \
         --pcd gRockchipTokenSpaceGuid.PcdFitImageFlashAddress=0x100000 \
         ${EDK2_FLAGS}
 

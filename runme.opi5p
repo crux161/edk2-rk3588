@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if command -v bash >/dev/null 2>&1; then
+	/opt/homebrew/bin/bash ./build.macos.sh -d orangepi-5plus
+else
+	echo "Bash is required to run, and was not found."
+	exit 1
+fi

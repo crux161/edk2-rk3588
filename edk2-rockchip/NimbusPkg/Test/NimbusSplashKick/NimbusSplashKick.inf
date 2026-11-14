@@ -1,0 +1,30 @@
+## @file
+#  QEMU test for NimbusSplashDxe: signal the platform's AfterConsole event (QEMU's boot manager
+#  never does), keep the console silent for five seconds while the splash runs, then print one
+#  line. That line is console text, so it must end the splash.
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = NimbusSplashKick
+  FILE_GUID                      = 025AE2FB-A0F9-40A5-A722-280575611E7E
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 0.1
+  ENTRY_POINT                    = NimbusSplashKickMain
+
+[Sources]
+  NimbusSplashKick.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  NimbusPkg/NimbusPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiBootServicesTableLib
+  UefiLib
+
+[Guids]
+  gNimbusSplashStateGuid

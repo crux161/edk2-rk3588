@@ -15,3 +15,6 @@
 
   # Splash screen logo
   INF $(VENDOR_DIRECTORY)/Drivers/LogoDxe/LogoDxe.inf
+!if $(NIMBUS_SPLASH_ENABLE) == TRUE
+  INF NimbusPkg/Drivers/NimbusSplashDxe/NimbusSplashDxe.inf
+!endif

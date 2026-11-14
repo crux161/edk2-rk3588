@@ -37,6 +37,15 @@
   DEFINE RK_RTC8563_ENABLE = TRUE
 
   #
+  # NIMBUS: the Kumo Continuum splash (PROPOSAL/024 KS2). Its renderer is libkumo_splash_ffi.a,
+  # built from the KUMO tree by scripts/kumo-splash-lib.sh. Build with
+  # -D NIMBUS_SPLASH_ENABLE=FALSE for the stock logo.
+  #
+!ifndef NIMBUS_SPLASH_ENABLE
+  DEFINE NIMBUS_SPLASH_ENABLE = TRUE
+!endif
+
+  #
   # RK3588-based platform
   #
 !include Silicon/Rockchip/RK3588/RK3588Platform.dsc.inc
@@ -126,3 +135,6 @@
 
   # Splash screen logo
   $(VENDOR_DIRECTORY)/Drivers/LogoDxe/LogoDxe.inf
+!if $(NIMBUS_SPLASH_ENABLE) == TRUE
+  NimbusPkg/Drivers/NimbusSplashDxe/NimbusSplashDxe.inf
+!endif
